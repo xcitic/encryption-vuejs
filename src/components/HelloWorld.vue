@@ -1,30 +1,18 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+
+    <input type="text" class="text-to-encrypt">
+
+    <button class="encrypt btn btn-primary">
+          Encrypt message
+    </button>
+    <button class="decrypt btn btn-secondary">
+      Decrypt message
+    </button>
+    <br><br>
+    <textarea class="text-encrypted" rows="5">Encrypted Message will appear here</textarea>
+    <textarea class="text-decrypted"  rows="5">Decrypted Message will appear here</textarea>
+
   </div>
 </template>
 
@@ -33,6 +21,94 @@ export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+
+  data() {
+    return {
+      ciphertext: null
+    }
+  },
+
+  mounted() {
+    /*
+      Generate an encryption key pair, then set up event listeners
+      on the "Encrypt" and "Decrypt" buttons.
+      */
+      let started = new Date().getTime();
+      let keylength = 8192;
+      window.crypto.subtle.generateKey(
+        {
+        name: "RSA-OAEP",
+        // Consider using a 4096-bit key for systems that require long-term security
+        modulusLength: keylength,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-512",
+        },
+        true,
+        ["encrypt", "decrypt"]
+      ).then((keyPair) => {
+        let finished = new Date().getTime();
+        let usedTime = finished - started;
+        console.log(`Making keypair with modulus ${keylength} took: ${usedTime} milliseconds`)
+        const encryptButton = document.querySelector(".encrypt");
+        encryptButton.addEventListener("click", () => {
+          this.encryptMessage(keyPair.publicKey);
+        });
+
+        const decryptButton = document.querySelector(".decrypt");
+        decryptButton.addEventListener("click", () => {
+          this.decryptMessage(keyPair.privateKey);
+        });
+      });
+
+   //
+
+   //
+   //
+
+
+  },
+
+
+  methods: {
+
+    async encryptMessage(key) {
+      let encoded = this.getMessageEncoding();
+      this.ciphertext = await window.crypto.subtle.encrypt(
+        {
+          name: "RSA-OAEP"
+        },
+        key,
+        encoded
+      );
+
+      let buffer = new Uint8Array(this.ciphertext, 0, 5);
+      const cipherTextValue = document.querySelector('.text-encrypted')
+      cipherTextValue.textContent = `${buffer}...[${this.ciphertext.byteLength} bytes total]`;
+    },
+
+    async decryptMessage(key) {
+      let decrypted = await window.crypto.subtle.decrypt(
+        {
+          name: "RSA-OAEP"
+        },
+        key,
+        this.ciphertext
+      );
+      let dec = new TextDecoder();
+      const decryptedValue = document.querySelector('.text-decrypted');
+      decryptedValue.textContent = dec.decode(decrypted)
+
+    },
+
+    getMessageEncoding() {
+      const messageBox = document.querySelector(".text-to-encrypt");
+      let message = messageBox.value;
+      let encoder = new TextEncoder();
+      return encoder.encode(message);
+    },
+
+
   }
 }
 </script>
