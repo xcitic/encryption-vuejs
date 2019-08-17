@@ -1,0 +1,22 @@
+{
+  "name": "encryption-server-side",
+  "version": "0.0.1",
+  "description": "Generate RSA keypairs, encrypt and decrypt messages",
+  "main": "main.js",
+  "author": "Sami",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon --exec babel-node src/main.js",
+    "test": "No tests defined yet"
+  },
+  "dependencies": {
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "nodemon": "^1.19.1"
+  }
+}
