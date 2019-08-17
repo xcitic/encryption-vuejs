@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "dotenv": "^8.0.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "js-crypto-rsa": "^0.5.9"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
