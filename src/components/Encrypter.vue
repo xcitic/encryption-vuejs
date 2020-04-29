@@ -39,33 +39,21 @@ export default {
   },
 
   mounted() {
-    this.exchangeLocalKeyWithServer();
+    this.keyGenerationAndExchangeProtol();
   },
 
 
   methods: {
 
-    async exchangeLocalKeyWithServer() {
+    async keyGenerationAndExchangeProtol() {
       await this.generateLocalKey();
       let localJWK = await this.exportLocalKey();
-      this.sendKeyToServer(localJWK);
+      this.exchangeKeyWithServer(localJWK);
     },
 
     async exportLocalKey() {
       let exportedKey = await crypto.subtle.exportKey('jwk', this.localKeyPair.publicKey);
       return exportedKey
-    },
-
-    async sendKeyToServer(localJWK) {
-      const response = await fetch('http://localhost:3000/exchangeKey', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(localJWK)
-      });
-      let remoteJWK = await response.json();
-      this.setRemoteKey(remoteJWK);
     },
 
     async generateLocalKey() {
@@ -81,26 +69,30 @@ export default {
         true,
         ["encrypt", "decrypt"]
       );
-        this.localKeyPair = keyPair;
-        this.isLocalKeySet = true;
-        let finished = new Date().getTime();
-        let usedTime = finished - started;
-        console.log(`Making keypair with modulus ${keylength} took: ${usedTime} milliseconds`);
+      this.localKeyPair = keyPair;
+      this.isLocalKeySet = true;
+      let finished = new Date().getTime();
+      let usedTime = finished - started;
+      console.log(`Making keypair with modulus ${keylength} took: ${usedTime} milliseconds`);
+    },
+
+    async exchangeKeyWithServer(localJWK) {
+      const response = await fetch('http://localhost:3000/exchangeKey', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(localJWK)
+      });
+      let remoteJWK = await response.json();
+      this.setRemoteKey(remoteJWK);
     },
 
     async setRemoteKey(remoteJWK) {
-      // let remoteJWK = await this.getRemoteKey();
       let remoteKey = await this.importRemoteKey(remoteJWK);
       this.remoteKey = remoteKey;
       this.isRemoteKeySet = true;
     },
-
-    async getRemoteKey() {
-      let apiResponse = await fetch('http://localhost:3000/key');
-      let rawKey = await apiResponse.json();
-      return rawKey;
-    },
-
 
     importRemoteKey(jwk) {
       return window.crypto.subtle.importKey(

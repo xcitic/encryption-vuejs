@@ -1,6 +1,5 @@
 import express from 'express';
 import dotenv from 'dotenv/config';
-// import crypto from 'js-crypto-rsa';
 import crypto from '@trust/webcrypto';
 import cors from 'cors';
 
@@ -19,21 +18,14 @@ const server = app.listen(port, () => {
 });
 
 
-// Generate RSA Key pair USING js-crypto-rsa
-// var privateKey;
-// var publicKey;
-// crypto.generateKey(4196).then(keypair => {
-//   privateKey = keypair.privateKey;
-//   publicKey = keypair.publicKey;
-// })
 
 // Generate RSA Keypair using Webcrypto package
 let privateKey, publicKey, exportedKey;
-let keylength = 8192;
+let keyLength = 8192;
 crypto.subtle.generateKey(
   {
   name: "RSA-OAEP",
-  modulusLength: keylength,
+  modulusLength: keyLength,
   publicExponent: new Uint8Array([1, 0, 1]),
   hash: {name: "SHA-512"},
   },
@@ -49,7 +41,7 @@ crypto.subtle.generateKey(
 
 
 app.get('/key', (req, res, next) => {
-  console.log(exportedKey)
+  console.log(exportedKey);
   return res.send(exportedKey);
 });
 
@@ -57,5 +49,5 @@ app.get('/key', (req, res, next) => {
 app.post('/exchangeKey', (req, res) => {
   console.log('Received from client');
   console.log(req.body);
-  return res.send(exportedKey)
+  return res.send(exportedKey);
 });
