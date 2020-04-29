@@ -1,17 +1,17 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Encrypter msg="Welcome to EncrypterJS"/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Encrypter from './components/Encrypter.vue'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    Encrypter
   }
 }
 </script>

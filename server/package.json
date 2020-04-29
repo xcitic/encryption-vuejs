@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Generate RSA keypairs, encrypt and decrypt messages",
   "main": "main.js",
-  "author": "Sami",
+  "author": "Sami Lazreg",
   "license": "MIT",
   "scripts": {
     "start": "nodemon --exec babel-node src/main.js",

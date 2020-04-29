@@ -11,6 +11,7 @@ const node_env = process.env.NODE_ENV || 'development';
 
 // enable cross origin
 app.use(cors());
+app.use(express.json());
 
 // Bootstrapping the server and listning on port
 const server = app.listen(port, () => {
@@ -27,9 +28,8 @@ const server = app.listen(port, () => {
 // })
 
 // Generate RSA Keypair using Webcrypto package
-var privateKey;
-var publicKey;
-let keylength = 4192;
+let privateKey, publicKey, exportedKey;
+let keylength = 8192;
 crypto.subtle.generateKey(
   {
   name: "RSA-OAEP",
@@ -42,14 +42,20 @@ crypto.subtle.generateKey(
 ).then((keyPair) => {
   publicKey = keyPair.publicKey;
   privateKey = keyPair.privateKey;
+}).then(async () => {
+  exportedKey = await crypto.subtle.exportKey('jwk', publicKey);
 });
 
 
 
-
 app.get('/key', (req, res, next) => {
-  console.log(publicKey);
-  return res.send({
-    'publicKey': publicKey
-  })
+  console.log(exportedKey)
+  return res.send(exportedKey);
+});
+
+
+app.post('/exchangeKey', (req, res) => {
+  console.log('Received from client');
+  console.log(req.body);
+  return res.send(exportedKey)
 });
